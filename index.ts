@@ -31,27 +31,27 @@ function fizzbuzz(): void {
         maxNum = getUserInput(INSERT_MAX_NUMBER_PROMPT);
     }
 
-    const activeRules: Map<Rule, boolean> = setRules();
-    for (let i: number = 1; i <= maxNum; i++) {
+    const rulesStatus: Map<Rule, boolean> = setRules();
+    for (let currentNumber: number = 1; currentNumber <= maxNum; currentNumber++) {
         let output: Array<string> = [];
         let foundEleven: boolean = false;
 
-        if (i % 11 === 0 && activeRules.get(BONG)) {
+        if (currentNumber % 11 === 0 && rulesStatus.get(BONG)) {
             output.push(BONG.name);
             foundEleven = true;
         }
-        if (i % 3 === 0 && activeRules.get(FIZZ) && !foundEleven) {
+        if (currentNumber % 3 === 0 && rulesStatus.get(FIZZ) && !foundEleven) {
             output.push(FIZZ.name);
         }
-        if (i % 5 === 0 && activeRules.get(BUZZ) && !foundEleven) {
+        if (currentNumber % 5 === 0 && rulesStatus.get(BUZZ) && !foundEleven) {
             output.push(BUZZ.name);
         }
 
-        if (i % 7 === 0 && activeRules.get(BANG) && !foundEleven) {
+        if (currentNumber % 7 === 0 && rulesStatus.get(BANG) && !foundEleven) {
             output.push(BANG.name);
         }
 
-        if (i % 13 === 0 && activeRules.get(FEZZ)) {
+        if (currentNumber % 13 === 0 && rulesStatus.get(FEZZ)) {
             let containsB: string | undefined = output.find(a => a.includes("B"));
             let fezz: string = FEZZ.name;
             if (containsB) {
@@ -61,17 +61,17 @@ function fizzbuzz(): void {
             }
         }
 
-        if (i % 17 === 0 && activeRules.get(REVERSE)) {
+        if (currentNumber % 17 === 0 && rulesStatus.get(REVERSE)) {
             output.reverse();
         }
 
-        activeRules.forEach(
+        rulesStatus.forEach(
             (active, rule) => {
                 if (STANDARD_RULES.includes(rule)) {
                     return;
                 }
 
-                if (active && i % rule.divider === 0) {
+                if (active && currentNumber % rule.divider === 0) {
                     output.push(rule.name);
                 }
             }
@@ -80,7 +80,7 @@ function fizzbuzz(): void {
         if (output.length !== 0) {
             console.log(output.join(""));
         } else {
-            console.log(i);
+            console.log(currentNumber);
         }
     }
 }
@@ -91,7 +91,8 @@ function getUserInput(displayMessage: string): number | null {
     return Number.isNaN(convertedNumber) ? null : convertedNumber;
 }
 
-function getCustomRules(allRules: Array<Rule>) {
+function getCustomRules(): Array<Rule> {
+    const customRules: Array<Rule> = new Array<Rule>();
     while (true) {
         const addingRules: string = prompt("Add a new custom rule? (y for yes, anything else for no): ");
         if (addingRules !== "y") {
@@ -105,16 +106,18 @@ function getCustomRules(allRules: Array<Rule>) {
         }
 
         let newRuleName: string = prompt(INSERT_CUSTOM_RULE_NAME_PROMPT);
-        allRules.push(new Rule(newRuleDivider, newRuleName));
+        customRules.push(new Rule(newRuleDivider, newRuleName));
     }
+    return customRules;
 }
 
 function setRules(): Map<Rule, boolean> {
 
-    const allRules: Array<Rule> = new Array<Rule>().concat(STANDARD_RULES);
-    getCustomRules(allRules);
+    const allRules: Array<Rule> = new Array<Rule>()
+        .concat(STANDARD_RULES)
+        .concat(getCustomRules());
 
-    const activeRules: Map<Rule, boolean> = new Map<Rule, boolean>();
+    const rulesStatus: Map<Rule, boolean> = new Map<Rule, boolean>();
 
     allRules.forEach((rule: Rule): void =>
         {
@@ -122,11 +125,11 @@ function setRules(): Map<Rule, boolean> {
                 + rule.name
                 + "? (y to activate, n (or anything else) to deactivate) ");
 
-            activeRules.set(rule, activeRule === "y");
+            rulesStatus.set(rule, activeRule === "y");
         }
     );
 
-    return activeRules;
+    return rulesStatus;
 }
 
 fizzbuzz();
